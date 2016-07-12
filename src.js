@@ -1,11 +1,11 @@
-(function($) {
+(function() {
     var EstadosCidades = function (
         estadoSelector,
         cidadeSelector,
         estadoDefault
     ) {
-        this.$estadoElement = $(estadoSelector);
-        this.$cidadeElement = $(cidadeSelector);
+        this.$estadoElement = document.getElementById(estadoSelector);
+        this.$cidadeElement = document.getElementById(cidadeSelector);
         this.estadoDefault = estadoDefault;
 
         this.init();
@@ -18,9 +18,9 @@
         var that = this;
         this.loadEstados();
 
-        this.$estadoElement.on('change', function() {
+        this.$estadoElement.onchange = function() {
             that.loadCidades();
-        });
+        };
     };
 
     EstadosCidades.prototype.loadEstados = function() {
@@ -31,7 +31,7 @@
             return;
         }
 
-        $.getJSON('estados.json', function (data) {
+        getJSON('estados.json', function (data) {
             EstadosCidades.prototype.estados = data;
             that.renderEstados();
         });
@@ -39,52 +39,69 @@
 
     EstadosCidades.prototype.loadCidades = function() {
         var that = this,
-            estadoSelected = this.$estadoElement.val();
+            estadoSelected = this.$estadoElement.value;
 
         if (EstadosCidades.prototype.cidades[estadoSelected]) {
             this.renderCidades(estadoSelected);
             return;
         }
 
-        $.getJSON('cidades/'+ estadoSelected +'.json', function (cidades) {
+        getJSON('cidades/'+ estadoSelected +'.json', function (cidades) {
             EstadosCidades.prototype.cidades[estadoSelected] = cidades;
             that.renderCidades(estadoSelected);
         });
     };
 
     EstadosCidades.prototype.renderCidades = function(estado) {
-        var that = this,
+        var i = 0,
             cidades = EstadosCidades.prototype.cidades[estado];
 
-        that.$cidadeElement.empty();
-        $.each(cidades, function(key, value) {
-            var option = $("<option/>", {
-                value: value,
-                text: value
-            });
+        while (this.$cidadeElement.firstChild) {
+            this.$cidadeElement.removeChild(this.$cidadeElement.firstChild);
+        }
 
-            that.$cidadeElement.append(option);
-        });
+        for (; i < cidades.length; i++) {
+            var option = document.createElement("option");
+            option.text = cidades[i];
+            option.value = cidades[i];
+
+            this.$cidadeElement.appendChild(option);
+        }
     };
 
     EstadosCidades.prototype.renderEstados = function() {
-        var that = this;
+        var i = 0,
+            estados = EstadosCidades.prototype.estados;
 
-        $.each(EstadosCidades.prototype.estados, function(key, value) {
-            var option = $("<option/>", {
-                value: value.sigla,
-                text: value.nome
-            });
+        for (; i < estados.length; i++) {
+            var option = document.createElement("option");
+            option.text = estados[i].nome;
+            option.value = estados[i].sigla;
 
-            if (value.sigla == that.estadoDefault) {
-                option.prop('selected', true);
+            if (estados[i].sigla == this.estadoDefault) {
+                option.selected = true;
             }
 
-            that.$estadoElement.append(option);
-        });
+            this.$estadoElement.appendChild(option);
+        }
 
         this.loadCidades();
     };
 
+    function getJSON(url, callback) {
+      httpRequest = new XMLHttpRequest();
+
+      httpRequest.onreadystatechange = function() {
+            if (httpRequest.readyState != 4) {
+                return
+            };
+
+            callback(JSON.parse(httpRequest.responseText));
+        };
+
+        httpRequest.open("GET", url, true);
+        httpRequest.send(null);
+    };
+
     window.EstadosCidades = EstadosCidades;
-}(jQuery));
+}());
