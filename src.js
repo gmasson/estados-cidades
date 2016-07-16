@@ -4,8 +4,8 @@
         cidadeSelector,
         estadoDefault
     ) {
-        this.$estadoElement = document.getElementById(estadoSelector);
-        this.$cidadeElement = document.getElementById(cidadeSelector);
+        this.estadoElement = document.getElementById(estadoSelector);
+        this.cidadeElement = document.getElementById(cidadeSelector);
         this.estadoDefault = estadoDefault;
 
         this.init();
@@ -18,7 +18,7 @@
         var that = this;
         this.loadEstados();
 
-        this.$estadoElement.onchange = function() {
+        this.estadoElement.onchange = function() {
             that.loadCidades();
         };
     };
@@ -39,7 +39,7 @@
 
     EstadosCidades.prototype.loadCidades = function() {
         var that = this,
-            estadoSelected = this.$estadoElement.value;
+            estadoSelected = this.estadoElement.value;
 
         if (EstadosCidades.prototype.cidades[estadoSelected]) {
             this.renderCidades(estadoSelected);
@@ -56,8 +56,8 @@
         var i = 0,
             cidades = EstadosCidades.prototype.cidades[estado];
 
-        while (this.$cidadeElement.firstChild) {
-            this.$cidadeElement.removeChild(this.$cidadeElement.firstChild);
+        while (this.cidadeElement.firstChild) {
+            this.cidadeElement.removeChild(this.cidadeElement.firstChild);
         }
 
         for (; i < cidades.length; i++) {
@@ -65,7 +65,7 @@
             option.text = cidades[i];
             option.value = cidades[i];
 
-            this.$cidadeElement.appendChild(option);
+            this.cidadeElement.appendChild(option);
         }
     };
 
@@ -82,7 +82,7 @@
                 option.selected = true;
             }
 
-            this.$estadoElement.appendChild(option);
+            this.estadoElement.appendChild(option);
         }
 
         this.loadCidades();
