@@ -4,8 +4,8 @@
         cidadeSelector,
         estadoDefault
     ) {
-        this.$estadoElement = document.getElementById(estadoSelector);
-        this.$cidadeElement = document.getElementById(cidadeSelector);
+        this.estadoElement = document.getElementById(estadoSelector);
+        this.cidadeElement = document.getElementById(cidadeSelector);
         this.estadoDefault = estadoDefault;
 
         this.init();
@@ -13,15 +13,31 @@
 
     EstadosCidades.prototype.estados = [];
     EstadosCidades.prototype.cidades = {};
+    EstadosCidades.prototype.config = {};
+    EstadosCidades.prototype.defaultConfig = {
+        mainUrl: '/'
+    };
 
     EstadosCidades.prototype.init = function() {
         var that = this;
         this.loadEstados();
 
-        this.$estadoElement.onchange = function() {
+        this.estadoElement.onchange = function() {
             that.loadCidades();
         };
     };
+
+    EstadosCidades.prototype.getConfig = function(configName) {
+        if (this.config.hasOwnProperty(configName)) {
+            return this.config[configName];
+        }
+
+        return this.defaultConfig[configName];
+    }
+
+    EstadosCidades.config = function(config) {
+        EstadosCidades.prototype.config = config;
+    }
 
     EstadosCidades.prototype.loadEstados = function() {
         var that = this;
@@ -31,7 +47,9 @@
             return;
         }
 
-        getJSON('estados.json', function (data) {
+        urlEstados = this.getConfig('mainUrl') + 'estados.json';
+
+        getJSON(urlEstados, function (data) {
             EstadosCidades.prototype.estados = data;
             that.renderEstados();
         });
@@ -39,14 +57,16 @@
 
     EstadosCidades.prototype.loadCidades = function() {
         var that = this,
-            estadoSelected = this.$estadoElement.value;
+            estadoSelected = this.estadoElement.value;
 
         if (EstadosCidades.prototype.cidades[estadoSelected]) {
             this.renderCidades(estadoSelected);
             return;
         }
 
-        getJSON('cidades/'+ estadoSelected +'.json', function (cidades) {
+        urlCidades = this.getConfig('mainUrl') + 'cidades/' + estadoSelected + '.json';
+
+        getJSON(urlCidades, function (cidades) {
             EstadosCidades.prototype.cidades[estadoSelected] = cidades;
             that.renderCidades(estadoSelected);
         });
@@ -56,8 +76,8 @@
         var i = 0,
             cidades = EstadosCidades.prototype.cidades[estado];
 
-        while (this.$cidadeElement.firstChild) {
-            this.$cidadeElement.removeChild(this.$cidadeElement.firstChild);
+        while (this.cidadeElement.firstChild) {
+            this.cidadeElement.removeChild(this.cidadeElement.firstChild);
         }
 
         for (; i < cidades.length; i++) {
@@ -65,7 +85,7 @@
             option.text = cidades[i];
             option.value = cidades[i];
 
-            this.$cidadeElement.appendChild(option);
+            this.cidadeElement.appendChild(option);
         }
     };
 
@@ -82,7 +102,7 @@
                 option.selected = true;
             }
 
-            this.$estadoElement.appendChild(option);
+            this.estadoElement.appendChild(option);
         }
 
         this.loadCidades();

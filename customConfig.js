@@ -1,0 +1,3 @@
+EstadosCidades.config({
+    mainUrl: '/'
+});
